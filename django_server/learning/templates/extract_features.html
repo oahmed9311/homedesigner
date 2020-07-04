@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% block head %}
+    <title>HomeDesigner - Machine Learning</title>
+    {% load static %}
+    <!-- Load the Paper.js library -->
+    <script type="text/javascript" src="{% static 'paper.js' %}"></script>
+
+    <script language="javascript" src="{% static 'tree.jquery.js' %}"></script>
+    <link href="{% static 'jqtree.css' %}" rel="stylesheet">
+
+    <script>paperEvents = {};</script>
+    <script type="text/paperscript" src="{% static 'segments.js' %}" canvas="myCanvas"></script>
+
+    <link href="{% static 'alert.jquery.css' %}" rel="stylesheet">
+    <script type="text/javascript" src="{% static 'alert.jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'FileSaver.min.js' %}"></script>
+    <style>
+        ul {
+            list-style-type: none;
+            text-align: left;
+        }
+
+        input[type="text"] {
+            width: 100%;
+        }
+
+        label {
+            margin-top: 5px;
+        }
+
+        #myCanvas {
+            border: 1px solid #444;
+            pointer-events: none;
+            width: 100%;
+        }
+
+        #myLog {
+            width: 100%;
+            background-color: #4e555b !important;
+            color: white !important;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 14px;
+            padding: 10px;
+            min-height: 100px;
+            overflow-y: scroll;
+        }
+
+        .jumbotron {
+            padding-bottom: 10px !important;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <section class="jumbotron text-center">
+        <div class="container">
+            <h1 class="jumbotron-heading">HomeDesigner Machine Learning</h1><br>
+
+            <form method="POST">
+                <div class="form-group">
+
+                </div>
+                <table>
+
+                    <tbody>
+                    <tr>
+                        <td><label for=""><label>Features:</label></label></td>
+                        <td>
+                            <ul id="id_features">
+                                <li><label for="id_features_0"><!--<input type="checkbox" name="features"
+                                                                      value="orientation" id="id_features_0">-->
+                                    Orientation (with respect to north)</label>
+
+                                </li>
+                                <li><label for="id_features_1"><!--<input type="checkbox" name="features" value="zoning"
+                                                                      id="id_features_1">-->
+                                    Connections between spaces</label>
+
+                                </li>
+                                <li><label for="id_features_2"><!--<input type="checkbox" name="features" value="waster"
+                                                                      id="id_features_2">-->
+                                    Percentage of area occupied by each space</label>
+
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+
+
+                    </tbody>
+                </table>
+            </form>
+            <a href="#" id="extract-features" class="btn btn-primary">Extract Features</a><br><br>
+            <label for="myLog"><h5>Log</h5></label>
+            <textarea id="myLog" spellcheck="false"></textarea>
+        </div>
+    </section>
+    <div id="canvasContainer">
+        <canvas id="myCanvas" resize></canvas>
+    </div>
+    <script>
+        function pausecomp(millis) {
+            var date = new Date();
+            var curDate = null;
+            do {
+                curDate = new Date();
+            }
+            while (curDate - date < millis);
+        }
+
+        $(document).ready(function () {
+            $('#myLog').attr('disabled', 'disabled'); //Disable
+            function featuresToCsv(features) {
+                // create header
+                var spaces = ['lobby', 'multipurpose', 'terrace', 'activity', 'wc', 'storage'];
+                var csv_header = ['name', 'orientation_grade', 'waster_grade', 'zoning_grade', 'overall_grade'];
+                for (var s in spaces) {
+                    var space = spaces[s];
+                    csv_header.push('o_' + space);
+                }
+                for (var s in spaces) {
+                    var space = spaces[s];
+                    csv_header.push('w_' + space);
+                }
+                for (var s in spaces) {
+                    var space = spaces[s];
+                    for (var s_ = s; s_ < spaces.length; s_++) {
+                        other_space = spaces[s_];
+                        csv_header.push('z_' + space + '_' + other_space);
+                    }
+                }
+
+                // data
+                var data = [];
+                for (var f in features) {
+                    var csv_line = [];
+                    data.push(csv_line);
+                    var sample = features[f];
+                    csv_line.push(sample.name);
+                    csv_line.push(sample.orientation_grade);
+                    csv_line.push(sample.waster_grade);
+                    csv_line.push(sample.zoning_grade);
+                    csv_line.push(sample.overall_grade);
+                    // orientation
+                    for (var s in spaces) {
+                        var space = spaces[s];
+                        if (space in sample.orientation)
+                            csv_line.push(sample.orientation[space].N); // north only
+                        else
+                            csv_line.push(0);
+                    }
+                    // waster
+                    for (var s in spaces) {
+                        var space = spaces[s];
+                        if (space in sample.waster)
+                            csv_line.push(sample.waster[space]); // north only
+                        else
+                            csv_line.push(0);
+                    }
+                    // zoning
+                    for (var s in spaces) {
+                        var space = spaces[s];
+                        for (var s_ = s; s_ < spaces.length; s_++) {
+                            other_space = spaces[s_];
+                            if (space in sample.zoning) {
+                                if (other_space in sample.zoning[space]) {
+                                    csv_line.push(sample.zoning[space][other_space]);
+                                    continue;
+                                }
+                            }
+                            // if space not in sample's zoning or other space not connected to space
+                            csv_line.push(0);
+                        }
+                    }
+                }
+                //console.log(csv_header);
+                //console.log(data);
+                //var csv_str = "data:text/csv;charset=utf-8,";
+                var csv_str = csv_header.toString();
+                for (var line in data) {
+                    csv_str += '\r\n' + data[line].toString();
+                }
+                //var encodedUri = encodeURI(csv_str);
+                //window.location.assign(encodedUri);
+                var filename = "features.csv"
+                var blob = new Blob([csv_str], {
+                 type: "text/csv;charset=utf-8"
+                });
+                saveAs(blob, filename);
+            }
+            var myLog = function(textarea) {
+                this.textarea = textarea;
+                this.print_pending = function(text) {
+                    this.textarea.val(this.textarea.val() + text + ' ... ');
+                };
+                this.print_finish = function(text) {
+                    this.textarea.val(this.textarea.val() + 'done!\n');
+                };
+            };
+            $('#extract-features').click(function (e) {
+                var log = new myLog($('#myLog'));
+                log.print_pending('Getting data')
+                $.post('/learning/extract_features/', {csrfmiddlewaretoken: "{{ csrf_token }}"}, function (data) {
+                    log.print_finish();
+                    var features = [];
+                    for (var p in data) {
+                        paperEvents.onLoad(data[p].content);
+                        var sample = paperEvents.extractFeatures({'orientation': true, 'zoning': true, 'waster': true});
+                        sample['name'] = data[p].name;
+                        log.print_pending('Processing ' + data[p].name);
+                        sample['orientation_grade'] = data[p].orientation_grade;
+                        sample['waster_grade'] = data[p].waster_grade;
+                        sample['zoning_grade'] = data[p].zoning_grade;
+                        sample['overall_grade'] = data[p].overall_grade;
+                        features.push(sample);
+                        log.print_finish();
+                    }
+                    console.log(features);
+                    featuresToCsv(features);
+                });
+            });
+        });
+    </script>
+    <script type="text/javascript" src="{% static 'tabs.js' %}"></script>
+{% endblock %}

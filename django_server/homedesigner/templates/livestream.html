@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block head %}
+	<title>Livestream</title>
+	<script>
+		
+	</script>
+{% endblock %}
+{% block content %}
+    <main role="main">
+      <section class="jumbotron text-center">
+        <div class="container">
+          <h1 class="jumbotron-heading">Streaming from "El Hay El Aasher"</h1>
+          <!-- <p class="lead text-muted">Welcome to HomeDesigner<br> -->
+          
+          <div style="display:none;">
+            <form action="/livestream/" method="post">
+              {% csrf_token %}
+              {{ form }}
+            </form>
+			
+          </div>
+          <input id="switch_checkbox" type="checkbox" name="switch" value="on"> Switch On <br>
+          <div id="theimage"></div>
+        </div>
+      </section>
+
+    </main>
+    <script>
+      $(document).ready( function() {
+        $('#switch_checkbox').change(function() {
+          if(this.checked) {
+            $.ajax({ 
+              type: "get",
+              url:'https://homedesigner.venudio.com/switch/?state=on',
+            });
+          } else {
+            $.ajax({ 
+              type: "get",
+              url:'https://homedesigner.venudio.com/switch/?state=off',
+            });
+          }
+        });
+        var timerId = setInterval(function() {
+          $.ajax({ 
+          type: "get",
+          url:'https://homedesigner.venudio.com/getthefile/',
+          success: function(data){
+              $('#theimage').html('<img width="100%" src="data:image/jpeg;base64,' + data + '" />');
+            }
+          });
+        }, 3000);
+
+      });
+
+    </script>
+    <!--<script type="text/javascript" > 
+
+      $(document).ready( function() { 
+        
+        
+      });
+     </script>  -->
+{% endblock %}

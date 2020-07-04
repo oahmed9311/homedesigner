@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block head %}
+{% load static %}
+    <link rel="stylesheet" href="{% static 'floorplanner_index.css' %}">
+{% endblock %}
+{% block content %}
+<section class="jumbotron text-center">
+    <div class="container">
+        <h1 class="jumbotron-heading">HomeDesigner FloorPlanner</h1><br>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="user_action" value="new_project" />
+        <input type="text" name="new_project_name" placeholder="Project Name" style="padding: 5px;position:relative;top:2px;" /> &nbsp;
+        <input type="submit" class="btn btn-primary" id="btn_new_project" value="Start a New Project"/>
+    </form><br><br>
+    <!--{% if request.user.is_superuser %} <input type="text" id="openUserName" placeholder="User Name" /> {% endif %} 
+    <input type="text" id="openProjectName" placeholder="Project Name" /> 
+    <button type="button" class="btn btn-success">Open Saved Project</button><br><br>
+    -->
+    <span class="btn btn-success">Open Personal Saved Project</span><br><br>
+        
+    <table class="table">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Project</th>
+          <th scope="col">Created</th>
+          <th scope="col">Grades</th>
+        </tr>
+      </thead>
+      <tbody id="userProjects">
+        
+        
+      </tbody>
+    </table>
+    <hr>
+    
+
+    {% if request.user.is_superuser %}
+    
+    <span class="btn btn-success">Open User's Project</span><br><br>
+    <div id="tableDiv">
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Username</th>
+              <th scope="col">Project</th>
+              <th scope="col">Created</th>
+              <th scope="col">Grades</th>
+            </tr>
+          </thead>
+          <tbody id="otherUsersProjects">
+            
+          </tbody>
+        </table>
+    </div>
+    {% endif %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $.post( "/floorplanner/getUserProjects/", {csrfmiddlewaretoken: '{{ csrf_token }}'}, function( jsonStr ) {
+                if (jsonStr != '') {
+                    var json = JSON.parse(jsonStr);
+                    for (var p in json) {
+                        var project = json[p];
+                        var id = project.pk;
+                        var name = project.fields.name;
+                        var created = project.fields.created;
+                        var grade = project.fields.orientation_grade + ' ' + project.fields.zoning_grade + ' ' + project.fields.waster_grade + ' ' + project.fields.overall_grade;
+                        $('#userProjects').append("<tr class=\"projectRow\" pid=\"" + id + "\"><th scope=\"row\">" + (parseInt(p)+1) + "</th><td>" + name + "</td><td>" + created + "</td><td>" + grade + "</td></tr>");
+                    }
+                }
+                $('.projectRow').click(function(e) {
+                    var pid = $(this).attr('pid');
+                    document.location.href = '/floorplanner/project/?id=' + pid;
+                });
+            }); 
+            {% if request.user.is_superuser %}
+            $.post( "/floorplanner/getOtherUsersProjects/", {csrfmiddlewaretoken: '{{ csrf_token }}'}, function( jsonStr ) {
+                if (jsonStr != '') {
+                    var json = JSON.parse(jsonStr);
+                    for (var p in json) {
+                        var project = json[p];
+                        var id = project.id;
+                        var username = project.user__username;
+                        var name = project.name;
+                        var created = project.created;
+                        var grade = project.orientation_grade + ' ' + project.zoning_grade + ' ' + project.waster_grade + ' ' + project.overall_grade;
+                        $('#otherUsersProjects').append("<tr class=\"projectRow\" pid=\"" + id + "\"><th scope=\"row\">" + (parseInt(p)+1) + "</th><td>" + username +"</td><td>" + name + "</td><td>" + created + "</td><td>" + grade + "</td></tr>");
+                    }
+                }
+                $('.projectRow').click(function(e) {
+                    var pid = $(this).attr('pid');
+                    document.location.href = '/floorplanner/project/?id=' + pid;
+                });
+            }); 
+            {% endif %}
+            
+        });
+                
+    </script>
+    
+    </div>
+</section>
+{% endblock %}

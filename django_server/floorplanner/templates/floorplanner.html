@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+{% block head %}
+	<title>HomeDesigner - FloorPlanner</title>
+	{% load static %}
+    <link href="{% static 'floorplanner.css' %}" rel="stylesheet">
+	<!-- Load the Paper.js library -->
+	<script type="text/javascript" src="{% static 'paper.js' %}"></script>
+    
+    <script language="javascript" src="{% static 'tree.jquery.js' %}"></script>
+    <link href="{% static 'jqtree.css' %}" rel="stylesheet">
+    
+	<script>paperEvents={};</script>
+	<script type="text/paperscript" src="{% static 'segments.js' %}" canvas="myCanvas"></script>
+    
+    <link href="{% static 'alert.jquery.css' %}" rel="stylesheet">
+    <script type="text/javascript" src="{% static 'alert.jquery.min.js' %}"></script>
+{% endblock %}
+{% block content %}
+	<div id="sp-overlay">
+        <div class="sp sp-hydrogen"></div>
+    </div>
+	<div class="container-fluid">
+		<div class="row" id="floorplannerHeader"><h5 style="margin-top: 10px;"><strong><i class="fa fa-edit"></i> {{ project_name }} - Draw Your 2D Plan</strong></h5> 
+            <section class="text-center" style="margin-left: 50px;">
+                <a type="button" class="btn btn-sm btn-info" id="btnBack" href="/floorplanner"> < Back to Main Page</a>
+            </section>
+        </div>    
+	</div>
+    <div class="row" id="planTabs">
+			<div class="btn btn-secondary planTab">
+				<span class="btn btn-secondary active tabBtn" id="plan-0" autocomplete="off"> <input type="text" name="planName" value="Plan-0" />	</span>	  
+				<span class="btn-secondary tabOptionBtn delete" autocomplete="off"> <i class="fa fa-trash">&nbsp;</i></span>
+				<!-- <span class="btn-secondary tabOptionBtn hide" autocomplete="off"> <i class="fa fa-eye">&nbsp;</i></span> -->
+			</div>
+			
+			<span class="btn btn-secondary tabOptionBtn add" autocomplete="off"> <i class="fa fa-plus" style="margin-top: 7px;"></i></span>
+	</div>
+	<div>
+		<div id="propertiesBox" class="container-fluid">
+			<div class="row justify-content-center">
+				<span class="toolTitle">Draw</span>
+			</div>
+			
+			<div class="row justify-content-center btn-group-toggle" data-toggle="buttons">
+			  <label class="btn btn-secondary">
+				<input type="radio" name="draw" value="room" autocomplete="off"> <i class="fa fa-store-alt"></i> Room
+			  </label>
+			  <label class="btn btn-secondary">
+				<input type="radio" name="draw" value="door" autocomplete="off"> <i class="fa fa-door-open"></i> Door
+			  </label>
+			  <!-- <label class="btn btn-secondary">
+				<input type="radio" name="draw" value="stairs" autocomplete="off"> Stairs
+			  </label> -->
+			  <label class="btn btn-secondary active">
+				<input type="radio" name="draw" value="move" autocomplete="off" checked><i class="fa fa-compress-arrows-alt"></i> Move
+			  </label>
+			  <!-- <label class="btn btn-secondary">
+				<input type="radio" name="draw" value="rotate" autocomplete="off"><i class="fa fa-sync-alt"> Rotate</i>
+			  </label> -->
+			</div>
+		
+			<div class="row justify-content-center">
+				<button class="btn" type="button" id="undoBtn"> <i class="fa fa-undo"></i></button>
+			
+				<button class="btn" type="button" id="redoBtn"> <i class="fa fa-redo"></i></button>
+			
+			</div>
+            <div class="row justify-content-center">
+				<button class="btn" type="button" id="copyBtn"> <i class="fa fa-copy"></i></button>
+
+				<button class="btn" type="button" id="pasteBtn"> <i class="fa fa-paste"></i></button>
+			</div>
+			<hr>
+			
+			<div class="row justify-content-center">
+				<span class="toolTitle">Properties</span>
+			</div>
+			<div class="row justify-content-center">
+				<span class="toolTitleLittle">Designation</span>
+			</div>
+			<div class="row justify-content-center btn-group-toggle" data-toggle="buttons">
+			  <label class="btn btn-secondary active" >
+				<input type="radio" name="designation" value="multipurpose" autocomplete="off" checked> Multipurpose
+			  </label>
+			  <label class="btn btn-secondary">
+				<input type="radio" name="designation" value="storage" autocomplete="off"> Storage
+			  </label>
+			  <label class="btn btn-secondary">
+				<input type="radio" name="designation" value="wc" autocomplete="off"> WC
+			  </label>
+			  <label class="btn btn-secondary">
+				<input type="radio" name="designation" value="lobby" autocomplete="off"> Lobby
+			  </label>
+			  <label class="btn btn-secondary">
+				<input type="radio" name="designation" value="terrace" autocomplete="off"> Terrace
+			  </label>
+			  <label class="btn btn-secondary">
+				<input type="radio" name="designation" value="activity" autocomplete="off"> Activity
+			  </label>
+			  <label class="btn btn-secondary">
+				<input type="radio" name="designation" value="stairs" autocomplete="off"> Stairs
+			  </label>
+			</div>
+			
+			<hr>
+            {% if user.is_superuser %}
+			<div class="row justify-content-center">
+				<span class="toolTitle">Grade</span>
+			</div>
+			<div class="dropdown">
+			  <span class="gradeMenuButton">
+			  Orientation
+			  </span>
+			  <button class="btn btn-secondary dropdown-toggle " type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<span class="gradeChosen" id="orientationGrade">{{ orientation_grade }}</span>
+			  </button>
+			  <div class="dropdown-menu" aria-labelledby="gradeMenuButton">
+				<a class="dropdown-item" href="#">A</a>
+				<a class="dropdown-item" href="#">A-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">B</a>
+				<a class="dropdown-item" href="#">B-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">C</a>
+				<a class="dropdown-item" href="#">C-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">D</a>
+				<a class="dropdown-item" href="#">D-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">F</a>
+			  </div>
+			</div>
+			<div class="dropdown">
+			  <span class="gradeMenuButton">
+			  Zoning
+			  </span>
+			  <button class="btn btn-secondary dropdown-toggle " type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<span class="gradeChosen" id="zoningGrade">{{ zoning_grade }}</span>
+			  </button>
+			  <div class="dropdown-menu" aria-labelledby="gradeMenuButton">
+				<a class="dropdown-item" href="#">A</a>
+				<a class="dropdown-item" href="#">A-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">B</a>
+				<a class="dropdown-item" href="#">B-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">C</a>
+				<a class="dropdown-item" href="#">C-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">D</a>
+				<a class="dropdown-item" href="#">D-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">F</a>
+			  </div>
+			</div>
+			<div class="dropdown">
+			  <span class="gradeMenuButton">
+			  Waster 
+			  </span>
+			  <button class="btn btn-secondary dropdown-toggle " type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<span class="gradeChosen" id="wasterGrade">{{ waster_grade }}</span>
+			  </button>
+			  <div class="dropdown-menu" aria-labelledby="gradeMenuButton">
+				<a class="dropdown-item" href="#">A</a>
+				<a class="dropdown-item" href="#">A-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">B</a>
+				<a class="dropdown-item" href="#">B-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">C</a>
+				<a class="dropdown-item" href="#">C-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">D</a>
+				<a class="dropdown-item" href="#">D-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">F</a>
+			  </div>
+			</div>
+			<div class="dropdown">
+			  <span class="gradeMenuButton">
+			  Overall
+			  </span>
+			  <button class="btn btn-secondary dropdown-toggle " type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<span class="gradeChosen" id="overallGrade">{{ overall_grade }}</span>
+			  </button>
+			  <div class="dropdown-menu" aria-labelledby="gradeMenuButton">
+				<a class="dropdown-item" href="#">A</a>
+				<a class="dropdown-item" href="#">A-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">B</a>
+				<a class="dropdown-item" href="#">B-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">C</a>
+				<a class="dropdown-item" href="#">C-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">D</a>
+				<a class="dropdown-item" href="#">D-</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#">F</a>
+			  </div>
+			</div>
+            <a type="button" class="btn btn-sm btn-primary" id="submitGrade" style="width: 100%;" href="#">Submit Grade</a>
+            {% endif %}
+		</div>
+		<script>
+			$('input[type=radio][name=designation]').on('change', function() {
+				paperEvents.onRoomNameChange($(this).val());
+			});
+			$('input[type=radio][name=draw]').on('change', function() {
+				paperEvents.onDrawTypeChange($(this).val());
+			});
+		</script>
+		<div id="canvasContainer" ><canvas id="myCanvas" resize></canvas></div>
+	</div>
+    <div id="snapshotsBox">
+        <div>
+            <a type="button" class="btn btn-sm btn-warning btnSnapshot" id="btnTakeSnapshot" href="#">Save Snapshot</a>
+            <a type="button" class="btn btn-sm btn-success btnSnapshot" id="btnSaveSnapshot" href="#">Save</a>
+            <a type="button" class="btn btn-sm btn-primary btnSnapshot" id="btnLoadSnapshot" href="#">Load</a>
+            <a type="button" class="btn btn-sm btn-danger btnSnapshot" id="btnDeleteSnapshot" href="#">Delete</a>
+        </div>
+        
+        <div id="tree">
+
+        </div>
+        <script type="text/javascript">
+            var showAlert = function(t) {
+                $.createAlert({
+                    attachAfter: '#sp-overlay',
+                    title: t,
+                    confirmText: 'OK',
+                    confirmStyle: 'blue',
+                    callback: null
+                });
+                $.showAlert();
+            };
+            $(document).ready(function() {
+                $.post( "/floorplanner/loadSnapshot/", { project_id: {{ project_id }}, csrfmiddlewaretoken: '{{ csrf_token }}'}, function( jsonStr ) {
+                    if (jsonStr != '') {
+                        paperEvents.onLoad(jsonStr);
+                    }
+                });
+                $('#tree').tree({
+                    dataUrl: "/floorplanner/projectSnapshots/?project_id={{ project_id }}",
+                    autoOpen: true 
+                });
+                $('#btnSaveSnapshot').click(function(e) {
+                    $('#sp-overlay').fadeIn();
+                    var jsonStr = paperEvents.onSave();
+                    $.post( "/floorplanner/saveSnapshot/", { project_id: {{ project_id }}, save_data: jsonStr, csrfmiddlewaretoken: '{{ csrf_token }}'}, function( data ) {
+                        $('#sp-overlay').fadeOut();
+                    });
+                });
+                $('#btnTakeSnapshot').click(function(e) {
+                    $('#sp-overlay').fadeIn();
+                    var jsonStr = paperEvents.onSave();
+                    $.post( "/floorplanner/takeSnapshot/", { project_id: {{ project_id }}, save_data: jsonStr, csrfmiddlewaretoken: '{{ csrf_token }}'}, function( data ) {
+                        $('#tree').tree('loadData', data);
+                        $('#sp-overlay').fadeOut();
+                    });
+                });
+                $('#btnLoadSnapshot').click(function(e) {
+                    var nodes = $('#tree').tree('getSelectedNodes');
+                    if (nodes.length == 0) {
+                        showAlert('Please select a snapshot to load!');
+                        return;
+                    }
+                    $('#sp-overlay').fadeIn();
+                    var name = nodes[0].name;
+                    var snapshotId = name.substr(name.indexOf('/')+1, name.length);
+                    $.post( "/floorplanner/loadSnapshot/", { project_id: {{ project_id }}, snapshot_id: snapshotId, csrfmiddlewaretoken: '{{ csrf_token }}'}, function( jsonStr ) {
+                        if (jsonStr != '') {
+                            paperEvents.onLoad(jsonStr);
+                        }
+                        $.get("/floorplanner/projectSnapshots/?project_id={{ project_id }}", function(data) {
+                            $('#tree').tree('loadData', data);
+                            $('#sp-overlay').fadeOut();
+                        });
+                    });
+                    
+                });
+                $('#btnDeleteSnapshot').click(function(e) {
+                    var nodes = $('#tree').tree('getSelectedNodes');
+                    if (nodes.length == 0) {
+                        showAlert('Please select a snapshot to delete!');
+                        return;
+                    }
+                    $('#sp-overlay').fadeIn();
+                    var name = nodes[0].name;
+                    var snapshotId = name.substr(name.indexOf('/')+1, name.length);
+                    $.post( "/floorplanner/deleteSnapshot/", { project_id: {{ project_id }}, snapshot_id: snapshotId, csrfmiddlewaretoken: '{{ csrf_token }}'}, function(  ) {
+                        $.get("/floorplanner/projectSnapshots/?project_id={{ project_id }}", function(data) {
+                            $('#tree').tree('loadData', data);
+                            $('#sp-overlay').fadeOut();
+                        });
+                    }).fail(function() {
+                        $('#sp-overlay').fadeOut();
+                        showAlert('Could not delete snapshot! (is it the parent snapshot?)')
+                    });
+                });
+                $('#submitGrade').click(function(e) {
+                    if ($('#orientationGrade').html() == '' || $('#zoningGrade').html() == '' || $('#wasterGrade').html() == '' || $('#overallGrade').html() == '') {
+                        showAlert('Please fill out all grades!');
+                        return;
+                    }
+                    var grades = $('#orientationGrade').html() + ' ' + $('#zoningGrade').html() + ' ' + $('#wasterGrade').html() + ' ' + $('#overallGrade').html();
+                    $('#sp-overlay').fadeIn();
+                    $.post( "/floorplanner/assignGrade/", { project_id: {{ project_id }}, grades: grades, csrfmiddlewaretoken: '{{ csrf_token }}'}, function( data ) {
+                        $('#sp-overlay').fadeOut();
+                    }).fail(function() {
+                        $('#sp-overlay').fadeOut();
+                        showAlert('An error occured. Could not submit grade!');
+                    });
+				});
+				$("input[name='designation']").change(function(e) {
+					var checkedDraw = $("input[name='draw']:checked");
+					checkedDraw.attr('checked', undefined);
+					checkedDraw.parent().removeClass('active');
+					var roomDraw = $("input[name='draw'][value='room']");
+					roomDraw.attr('checked', 'checked');
+					roomDraw.parent().addClass('active');
+					paperEvents.onDrawTypeChange('room');
+				})
+            });
+        </script>
+    </div>
+	<script type="text/javascript" src="{% static 'tabs.js' %}"></script>
+    
+{% endblock %}
