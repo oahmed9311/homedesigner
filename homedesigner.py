@@ -18,7 +18,20 @@ def gradeToNum(grade):
     grade = np.where(grade == 'D-', 8, grade)
     grade = np.where(grade == 'F', 9, grade)
     return grade
-
+def gradeToAlpha(grade):
+    alpha = []
+    for g in grade:
+        g = round(g)
+        if g <= 1: alpha.append('A')
+        elif g <= 2: alpha.append('A-')
+        elif g <= 3: alpha.append('B')
+        elif g <= 4: alpha.append('B-')
+        elif g <= 5: alpha.append('C')
+        elif g <= 6: alpha.append('C-')
+        elif g <= 7: alpha.append('D')
+        elif g <= 8: alpha.append('D-')
+        else: alpha.append('F')
+    return alpha
 def load_data(csv_path, train_length, grade_data):
     data_raw = pd.read_csv(csv_path)
     data = data_raw.drop(['name', 'orientation_grade', 'waster_grade', 'zoning_grade', 'overall_grade'], axis=1)
@@ -32,8 +45,11 @@ def load_data(csv_path, train_length, grade_data):
 def computeAccuracy(predicted, y_test):
     print ("**** Accuracy")
     predicted_num = gradeToNum(predicted)
+    predicted_alpha = gradeToAlpha(predicted)
     y_test_num = gradeToNum(y_test.values)
+    print('******** Predicted (Alpha Form): ', predicted_alpha)
     print('******** Predicted (Numeric Form): ', predicted_num)
+    print('******** Actual (Alpha Form): ', [a for a in y_test])
     print('******** Actual (Numeric Form): ', y_test_num)
     distance = np.abs(np.subtract(predicted_num, y_test_num) / 9) / len(y_test_num)
     print('******** Normalized Distance: ', distance)
