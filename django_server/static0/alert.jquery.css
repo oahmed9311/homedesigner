@@ -1,0 +1,23 @@
+#alert_backdrop{z-index:999999;width:100%;height:100%;position:fixed;top:0;left:0;background:#000;-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";filter: alpha(opacity=50);-khtml-opacity: 0.5;-moz-opacity: 0.5;opacity: 0.5;filter: alpha(opacity=50);;display:none;}
+#alert_dialog{z-index:1000000;position: fixed;top: 20%;left: 25%;right: 25%;padding: 1em;box-sizing: border-box;background: #FFF;box-shadow: 0px 0px 2px 2px #6B6B6B;display:none;}
+#alert_title{color: #525252;padding: 0px 0px 5px 5px;font-weight: bold;font-size: 18px;}
+#alert_title, #alert_template{text-align:center;}
+#alert_actions{margin-top: 20px;text-align: center;}
+#alert_actions button{padding: 10px 15px;box-sizing:border-box;border: 0;color: #FFFFFF;text-transform: uppercase;cursor: pointer;-khtml-border-radius: 3px;-o-border-radius: 3px;border-radius: 3px;-webkit-border-radius: 3px;-moz-border-radius: 3px;}
+#alert_actions button.blue{background: #007aff;}
+/* define more button styles here or in your main styles file */
+#alert_close{display:none;}
+
+@media only screen and (max-width:62.375em){
+	#alert_dialog{left:10%;right:10%;}
+}
+
+@media only screen and (max-width:41.688em){
+	#alert_backdrop{background:transparent;}
+	#alert_dialog{width: 100%;top: 0;height: 100%;background: rgba(255,255,255,0.80) !important;left: 0;min-width:100%;right:0;}
+	#alert_title{margin-top:1em;font-size:2em;text-align:center;}
+	#alert_template{margin-top:1em;font-size:1.5em;}
+	#alert_actions{position: absolute;right: 2em;bottom: 3em;left: 2em;}
+	#alert_actions button{width:100%;font-size:1.2em;font-weight:normal;}
+	#alert_close{display:block;position:absolute;top:0.5em; right:0.5em; width: 1.5em; height: 1.5em; background-image: url('images/close.png'); background-repeat:no-repeat; background-size:cover;}
+}

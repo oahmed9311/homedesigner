@@ -55,7 +55,7 @@
         <div class="container">
             <h1 class="jumbotron-heading">HomeDesigner Machine Learning</h1><br>
 
-            <form method="POST">
+            <form method="post">
                 <div class="form-group">
 
                 </div>
@@ -89,7 +89,7 @@
                     </tbody>
                 </table>
             </form>
-            <a href="#" id="extract-features" class="btn btn-primary">Extract Features</a><br><br>
+            <input type="submit" value="Extract Features" id="extract-features" class="btn btn-primary"><br><br>
             <label for="myLog"><h5>Log</h5></label>
             <textarea id="myLog" spellcheck="false"></textarea>
         </div>
@@ -198,14 +198,15 @@
             };
             $('#extract-features').click(function (e) {
                 var log = new myLog($('#myLog'));
-                log.print_pending('Getting data')
+                let sample = {};
+                log.print_pending('Getting data');
                 $.post('/learning/extract_features/', {csrfmiddlewaretoken: "{{ csrf_token }}"}, function (data) {
-                    log.print_finish();
+
                     var features = [];
                     for (var p in data) {
                         paperEvents.onLoad(data[p].content);
-                        var sample = paperEvents.extractFeatures({'orientation': true, 'zoning': true, 'waster': true});
-                        sample['name'] = data[p].name;
+                        var sample =  paperEvents.extractFeatures({'orientation': true, 'zoning': true, 'waster': true});
+			                  sample['name'] = data[p].name;
                         log.print_pending('Processing ' + data[p].name);
                         sample['orientation_grade'] = data[p].orientation_grade;
                         sample['waster_grade'] = data[p].waster_grade;
@@ -217,6 +218,7 @@
                     console.log(features);
                     featuresToCsv(features);
                 });
+              log.print_finish();
             });
         });
     </script>

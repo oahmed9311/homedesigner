@@ -1,0 +1,12 @@
+.projectRow {
+    cursor: pointer;
+}
+
+.projectRow:hover {
+    background-color: #bbb;
+}
+
+#tableDiv {
+    height: 500px;
+    overflow-y:scroll;
+}
