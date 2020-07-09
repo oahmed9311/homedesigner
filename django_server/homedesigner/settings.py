@@ -25,7 +25,7 @@ SECRET_KEY = '8(11^mz#e_8*ds9!#-as@^@w7!j$)3^u6gd_k9*8-u=8&1evm+'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['homedesigner.venudio.com', '68.183.163.133', '*']
+ALLOWED_HOSTS = ['homedesigner.venudio.com', '127.0.0.1']
 
 
 # Application definition
@@ -85,8 +85,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
 		'NAME': 'homedesigner',
-		'USER': 'mysql',
-		'PASSWORD': 'www.y8.com', 
+		'USER': 'homedesigner',
+		'PASSWORD': '123456789', 
 		'HOST': 'localhost',
 		'PORT': '3306'
     }
