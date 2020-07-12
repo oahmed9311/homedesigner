@@ -1,0 +1,210 @@
+body {
+    min-width: 600px;
+}
+
+#myCanvas {
+	width: 2000px;
+	height: 1000px;
+}
+
+#canvasContainer {
+	height: 600px;
+	overflow: scroll;
+}
+
+#propertiesBox {
+	width: 200px; 
+	height: 600px;
+	padding-left: 20px;
+	font-family: Verdana, sans-serif;
+	float: left; 
+	background-color:#ddd;
+	border-right: 2px solid #aaa;
+}
+#snapshotsBox {
+    -moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;-o-user-select:none;
+    font-family:helvetica, sans-serif;
+    font-size: 12px;
+	padding: 3px;	
+	padding-left: 220px;
+	padding-top: 5px;
+	background-color: #ddd;
+	color: white;
+    width: 100%;
+}
+
+#tree {
+    width: 100%;
+    background-color: #eef;
+    font-weight: bold;
+    padding: 10px;
+    border: 1px solid #555;
+}
+#propertiesBox .btn {
+	margin: 1px;
+	padding: 3px;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+#floorplannerHeader{
+	padding: 3px;	
+	padding-left: 2%;
+	padding-top: 5px;
+	background-color: #305090;
+	color: white;
+}
+
+#planTabs {
+	padding: 3px;	
+	padding-left: 220px;
+	padding-top: 5px;
+	background-color: #ddd;
+	color: white;
+    width: 100%;
+}
+
+#planTabs .btn {
+	margin: 1px;
+	padding: 3px;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+#planTabs .active {
+	color: #f99 !important;
+}
+
+#btnBack, .btnSnapshot {
+    position:relative;
+    top: 5px;
+}
+
+.btn {
+	cursor: pointer;
+}
+.btnSnapshot {
+    font-size: 10px;
+    margin: 0;
+}
+.toolTitle {
+	font-size: 20px;
+	font-weight: bolder;
+	color: #844;
+	margin-bottom: 5px;
+}
+
+.toolTitleLittle {
+	font-size: 16px;
+	font-weight: bolder;
+	color: #444;
+	margin-bottom: 5px;
+}
+
+.active {
+	color: #8d8 !important;
+}
+
+.dropdown-item {
+	font-size: 12px;
+	padding: 2px;
+	padding-left: 5px;
+	margin: 0;
+}
+
+.dropdown-divider {
+	margin: 0;
+}
+.dropdown-toggle {
+	float: right;
+}
+.dropdown {
+	margin-bottom: 10px;
+}
+
+.gradeMenuButton {
+	width: 65%;
+	font-family: Helvetica, sans;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.tabOptionBtn {
+	padding: 2px;
+	padding-left: 6px;
+	padding-right: 6px;
+}
+
+.gradeChosen {
+	width:20%;
+	min-width:20%;
+	color: #8d8;
+	text-shadow: 1px 1px 1px #222;
+	font-family: courier;
+	font-size: 16px;
+}
+.active input {
+	color: #933;
+	background-color: #ccf;
+}
+.tabBtn input {
+	font-weight: bold;
+	width: 100px;
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	text-align: center;
+}
+
+/* Spinner Hydrogen */
+#sp-overlay {
+    position: fixed; /* Sit on top of the page content */
+    display:none;
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    top: 0; 
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.1); /* Black background with opacity */
+    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+    
+}
+.sp {
+	width: 32px;
+	height: 32px;
+	clear: both;
+	margin: 20px auto;
+}
+.sp-hydrogen {
+	position: relative;
+    top: 50%;
+	border: 2px #FFF solid;
+	border-radius: 50%;
+	-webkit-animation: spHydro 0.6s infinite linear;
+	animation: spHydro 0.6s infinite linear;
+}
+.sp-hydrogen:before, .sp-hydrogen:after {
+	content: '';
+	position: absolute;
+	width: 10px;
+	height: 10px;
+	background-color: #FFF;
+	border-radius: 50%;
+}
+.sp-hydrogen:before {
+	top: calc( 50% - 5px );
+	left: calc( 50% - 5px );
+}
+.sp-hydrogen:after {
+	top: -1px;
+	left: -1px;
+}
+@-webkit-keyframes spHydro {
+	from { -webkit-transform: rotate(0deg); }
+	to { -webkit-transform: rotate(359deg); }
+}
+@keyframes spHydro {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(359deg); }
+}

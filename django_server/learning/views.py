@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.db import connection
 from django.http import JsonResponse
 import zlib
+import pdb;
 
 def extract_features(request):
     if not request.user.is_authenticated:
@@ -16,6 +17,11 @@ def extract_features(request):
                 if content != None and len(content) != 0:
                     content = zlib.decompress(content).decode('utf-8')
                     posts_dict.append({'name':name, 'orientation_grade':orientation_grade, 'waster_grade':waster_grade, 'zoning_grade':zoning_grade, 'overall_grade':overall_grade, 'content':content})
+
+        # Ur returning JSON andthhen you want to somehow
+        # handle in via Jquery on the other side.
+
+        # Why not just
         return JsonResponse(posts_dict, safe=False)
     else:
         return render(request, 'extract_features.html')
